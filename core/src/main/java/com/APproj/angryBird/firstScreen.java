@@ -32,11 +32,12 @@ public class firstScreen implements Screen {
         this.game = game;
 
         this.texture = new Texture("backGROUND.jpg");
-        this.play = new Texture("playBUTTON.png");
+        this.play = new Texture("play.png");
 
         // Initialize the music
-        this.music = Gdx.audio.newMusic(Gdx.files.internal("D:\\Angry birds\\assets\\sounds\\game.wav"));
+        this.music = Gdx.audio.newMusic(Gdx.files.internal("sounds\\song.mp3"));
         this.music.setLooping(true);
+        this.music.setVolume(0.75f);
         this.music.play();
 
         // Initialize the camera and viewport for responsive design
@@ -50,10 +51,10 @@ public class firstScreen implements Screen {
 
         // Initialize the rectangle for the play button
         rect = new Rectangle();
-        rect.x = WORLD_WIDTH / 2 - 50;
-        rect.y = 20;
-        rect.width = 100;
-        rect.height = 100;
+        rect.x = WORLD_WIDTH / 2 - 120;
+        rect.y = 40;
+        rect.width = 200;
+        rect.height = 150;
 
         // Initialize the ShapeRenderer
         shapeRenderer = new ShapeRenderer();
@@ -86,6 +87,7 @@ public class firstScreen implements Screen {
             camera.unproject(touchPos); // Convert screen coordinates to world coordinates
 
             if (rect.contains(touchPos.x, touchPos.y)) {
+                music.stop();
                 game.setScreen(new firstLevel(game));
             }
         }
