@@ -32,12 +32,11 @@ public class firstScreen implements Screen {
         this.game = game;
 
         this.texture = new Texture("backGROUND.jpg");
-        this.play = new Texture("play.png");
+        this.play = new Texture("playBUTTON.png");
 
         // Initialize the music
         this.music = Gdx.audio.newMusic(Gdx.files.internal("sounds\\song.mp3"));
         this.music.setLooping(true);
-        this.music.setVolume(0.75f);
         this.music.play();
 
         // Initialize the camera and viewport for responsive design
@@ -51,10 +50,10 @@ public class firstScreen implements Screen {
 
         // Initialize the rectangle for the play button
         rect = new Rectangle();
-        rect.x = WORLD_WIDTH / 2 - 120;
-        rect.y = 40;
-        rect.width = 200;
-        rect.height = 150;
+        rect.x = WORLD_WIDTH / 2 - 50;
+        rect.y = 20;
+        rect.width = 100;
+        rect.height = 100;
 
         // Initialize the ShapeRenderer
         shapeRenderer = new ShapeRenderer();
@@ -78,7 +77,7 @@ public class firstScreen implements Screen {
         // Draw the background and play button using the game's batch
         game.batch.begin();
         game.batch.draw(texture, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-        game.batch.draw(play, rect.x, rect.y, rect.width, rect.height);
+        game.batch.draw(play, WORLD_WIDTH/2 -100, rect.y, 200, rect.height);
         game.batch.end();
 
         // Handle touch input for the play button
@@ -87,8 +86,7 @@ public class firstScreen implements Screen {
             camera.unproject(touchPos); // Convert screen coordinates to world coordinates
 
             if (rect.contains(touchPos.x, touchPos.y)) {
-                music.stop();
-                game.setScreen(new firstLevel(game));
+                game.setScreen(new gamescreen(game));
             }
         }
     }
