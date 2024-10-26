@@ -16,7 +16,6 @@ public class gamescreen implements Screen {
     private Texture backgroundTexture;
     private SpriteBatch spriteBatch;
     private FitViewport viewport;
-    private Music music;
     private OrthographicCamera camera;
     private button back;
     private button level1;
@@ -40,9 +39,7 @@ public class gamescreen implements Screen {
 
         backgroundTexture = new Texture("background.png");
 
-        music = Gdx.audio.newMusic(Gdx.files.internal("sounds\\song.mp3"));
-        music.setLooping(true);
-        music.setVolume(0.1f);
+
 
         // Load button textures
         Texture backTexture = new Texture(Gdx.files.internal("backy.png"));
@@ -79,7 +76,7 @@ public class gamescreen implements Screen {
     @Override
     public void show() {
         System.out.println("Game Screen is now active.");
-        music.play();
+
     }
 
     @Override
@@ -115,11 +112,12 @@ public class gamescreen implements Screen {
         camera.unproject(touchPos); // Convert screen coordinates to world coordinates
 
         if (back.isTouched(touchPos) && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            music.stop();
+            firstScreen.getMusic().stop();
             game.setScreen(new firstScreen(game)); // Switch to first screen
             System.out.println("Switched back to Home Screen.");
         }
         if (level1.isTouched(touchPos) && Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            firstScreen.getMusic().stop();
             game.setScreen(new firstLevel(game)); // Switch to first level
             System.out.println("Level 1 button pressed, switching to Level 1.");
         }
@@ -143,10 +141,10 @@ public class gamescreen implements Screen {
     private void toggleMusic() {
         isMusicPlaying = !isMusicPlaying; // Toggle music state
         if (isMusicPlaying) {
-            music.play(); // Play music
+            firstScreen.getMusic().play(); // Play music
             System.out.println("Music turned ON.");
         } else {
-            music.stop(); // Stop music
+            firstScreen.getMusic().stop(); // Stop music
             System.out.println("Music turned OFF.");
         }
     }
@@ -163,15 +161,15 @@ public class gamescreen implements Screen {
     public void resume() {}
 
     @Override
-    public void hide() {
-        music.stop();
+  public void hide() {
+//        music.stop();
     }
 
     @Override
     public void dispose() {
         spriteBatch.dispose();
         backgroundTexture.dispose();
-        music.dispose();
+//        music.dispose();
         back.dispose();
         level1.dispose();
         level2.dispose();

@@ -16,10 +16,10 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class firstScreen implements Screen {
     private final MainLauncher game;
-    private Texture texture;
-    private Music music;
+    private Texture texture, settings;
+    private static Music music;
     private Texture play;
-    private Rectangle rect;
+    private Rectangle rect, rect1;
     private OrthographicCamera camera;
     private Viewport viewport;
     private ShapeRenderer shapeRenderer;
@@ -28,10 +28,15 @@ public class firstScreen implements Screen {
     private static final float WORLD_WIDTH = 1280;
     private static final float WORLD_HEIGHT = 720;
 
+    public static Music getMusic() {
+        return music;
+    }
+
     public firstScreen(MainLauncher game) {
         this.game = game;
 
-        this.texture = new Texture("backGROUND.jpg");
+        this.texture = new Texture("splash.png");
+        this.settings = new Texture("settings.png");
         this.play = new Texture("playBUTTON.png");
 
         // Initialize the music
@@ -55,6 +60,17 @@ public class firstScreen implements Screen {
         rect.width = 100;
         rect.height = 100;
 
+
+
+        //initialize the rect for settings button
+
+        rect1 = new Rectangle();
+        rect1.x = 1150;
+        rect1.y = 620;
+        rect1.width = 69;
+        rect1.height = 69;
+
+
         // Initialize the ShapeRenderer
         shapeRenderer = new ShapeRenderer();
     }
@@ -77,6 +93,7 @@ public class firstScreen implements Screen {
         // Draw the background and play button using the game's batch
         game.batch.begin();
         game.batch.draw(texture, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+        game.batch.draw(settings, rect1.x,rect1.y,rect1.width,rect1.height);
         game.batch.draw(play, WORLD_WIDTH/2 -100, rect.y, 200, rect.height);
         game.batch.end();
 
@@ -87,6 +104,10 @@ public class firstScreen implements Screen {
 
             if (rect.contains(touchPos.x, touchPos.y)) {
                 game.setScreen(new gamescreen(game));
+            }
+
+            if(rect1.contains(touchPos.x, touchPos.y)) {
+                game.setScreen(new settingScreen(game));
             }
         }
     }

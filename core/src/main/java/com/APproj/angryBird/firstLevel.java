@@ -32,6 +32,7 @@ public class firstLevel implements Screen {
     }
 
     private void initializeTextures() {
+
         background = new Texture("background.png");
         ground = new Texture("ground.png");
         green = new Texture("green.png");
@@ -42,9 +43,17 @@ public class firstLevel implements Screen {
         wood3 = new Texture("horiz_wood.png");
         pig1 = new Texture("pig1.png");
         pause = new Texture("pause_button.png");
-
+        bgm = Gdx.audio.newMusic(Gdx.files.internal("sounds\\game.wav"));
+        bgm.setLooping(true);
+        bgm.play();
         // Pause button bounds (reduced size)
-        pauseButtonBounds = new Rectangle(1170, 670, 0.10f * pause.getWidth(), 0.10f * pause.getHeight());
+        pauseButtonBounds = new Rectangle(1170, 670, 0.10f * pause.getWidth(),
+            0.10f * pause.getHeight());
+
+
+
+
+
     }
 
     private void initializeCameraAndViewport() {
@@ -78,9 +87,11 @@ public class firstLevel implements Screen {
         drawGround();
         drawBirds();
         drawWoodBlocks();
-        game.batch.draw(catapult, 69, 55, 0.60f * catapult.getWidth(), 0.60f * catapult.getHeight());
+        game.batch.draw(catapult, 69, 55, 0.60f * catapult.getWidth(),
+            0.60f * catapult.getHeight());
         game.batch.draw(pig1, 825, 74);
-        game.batch.draw(pause, pauseButtonBounds.x, pauseButtonBounds.y, pauseButtonBounds.width, pauseButtonBounds.height); // Draw pause button
+        game.batch.draw(pause, pauseButtonBounds.x, pauseButtonBounds.y, pauseButtonBounds.width,
+            pauseButtonBounds.height); // Draw pause button
         game.batch.end();
     }
 
@@ -96,14 +107,16 @@ public class firstLevel implements Screen {
 
     private void handleInput() {
         // Handle mouse click for desktop input
+        int mouseX = Gdx.input.getX();
+        int mouseY = Gdx.input.getY();
         if (Gdx.input.isButtonJustPressed(com.badlogic.gdx.Input.Buttons.LEFT)) {
-            int mouseX = Gdx.input.getX();
-            int mouseY = Gdx.input.getY();
             mouseY = Gdx.graphics.getHeight() - mouseY; // Invert Y for correct positioning
 
             if (pauseButtonBounds.contains(mouseX, mouseY)) {
                 game.setScreen(new PauseScreen(game));
             }
+
+
         }
 
         // Handle touch input for mobile
@@ -114,7 +127,11 @@ public class firstLevel implements Screen {
             if (pauseButtonBounds.contains(touchPos.x, touchPos.y)) {
                 game.setScreen(new PauseScreen(game));
             }
+
+
         }
+
+
     }
 
     private void drawBackground() {

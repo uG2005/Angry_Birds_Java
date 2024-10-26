@@ -66,7 +66,7 @@ public class PauseScreen implements Screen {
         resumeButton.addListener(event -> {
             if (resumeButton.isPressed()) {
                 // Switch back to the game screen
-                game.setScreen(new firstLevel(game)); // Replace firstLevel with your current game screen class
+               game.setScreen(new firstLevel(game)); //Replace firstLevel with your current game screen class
             }
             return true;
         });
