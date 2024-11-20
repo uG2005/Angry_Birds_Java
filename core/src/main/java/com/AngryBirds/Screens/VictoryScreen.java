@@ -13,13 +13,17 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 
 public class VictoryScreen implements Screen {
 
-//    private MainLauncher game;
+    //    private MainLauncher game;
     private Stage stage;
     private SpriteBatch batch;
     private Texture backgroundTexture;
     private ImageButton replayButton, nextLevelButton;
 
+    private int currentLevel;
 
+    public VictoryScreen(int currentLevel) {
+        this.currentLevel = currentLevel;
+    }
 
     @Override
     public void show() {
@@ -36,12 +40,12 @@ public class VictoryScreen implements Screen {
 
         // Add listeners to buttonszz
         replayButton.addListener(event -> {
-            ((Game) Gdx.app.getApplicationListener()).setScreen(new FirstLevel());
+            restartCurrentLevel();
             return true;
         });
 
         nextLevelButton.addListener(event -> {
-            //logic for next level
+            loadNextLevel();
             return true;
         });
 
@@ -97,11 +101,47 @@ public class VictoryScreen implements Screen {
     }
 
     @Override
-    public void pause() {}
+    public void pause() {
+    }
 
     @Override
-    public void resume() {}
+    public void resume() {
+    }
 
     @Override
-    public void hide() {}
+    public void hide() {
+    }
+
+    private void loadNextLevel() {
+        Game game = (Game) Gdx.app.getApplicationListener();
+        switch (currentLevel) {
+            case 1:
+                game.setScreen(new SecondLevel());
+                break;
+            case 2:
+                game.setScreen(new ThirdLevel());
+                break;
+            default:
+                System.out.println("No more levels available!");
+                break;
+        }
+    }
+
+    private void restartCurrentLevel() {
+        Game game = (Game) Gdx.app.getApplicationListener();
+        switch (currentLevel) {
+            case 1:
+                game.setScreen(new FirstLevel());
+                break;
+            case 2:
+                game.setScreen(new SecondLevel());
+                break;
+            case 3:
+                game.setScreen(new ThirdLevel());
+                break;
+            default:
+                System.out.println("Invalid level: " + currentLevel);
+                break;
+        }
+    }
 }
