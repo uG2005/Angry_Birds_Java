@@ -10,15 +10,43 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.utils.Array;
+
+import java.util.ArrayList;
 
 public class SecondLevel implements Screen {
+
+    //setting up box2d
+    private final float TIMESTEP = 1 / 60f; // frames
+    private final int VELOCITYITERATIONS = 8;
+    private final int POSITIONITERATIONS = 3;
+
+
+    //arrays for bodies
+    Array<Body> a1 = new Array<>();
+    private ArrayList<Block> woodBlocks;
+
+    BodyDef bodydef = new BodyDef();
+    FixtureDef fixtureDef = new FixtureDef();
+    private World world;
+
+
+
+
+
+
     private SpriteBatch batch;
-    private Sprite background, ground, catapult, green, blue, wood, pig1, pig2, pig3;
+    private Sprite background, catapult, wood;
+    private Bird red,blue;
+    private Pig pig1, pig2, pig3;
     private OrthographicCamera camera;
     private Sprite pause;
-    private Rectangle pauseButtonBounds;
+    private Body ground, catapultBody;
+
 
     private static final float WORLD_WIDTH = 1280;
     private static final float WORLD_HEIGHT = 720;
@@ -26,23 +54,110 @@ public class SecondLevel implements Screen {
     private static Music bgm;
 
     private void initializeTextures() {
+
+        //setting up the camera
+        camera = new OrthographicCamera(WORLD_WIDTH, WORLD_HEIGHT);
+        camera.position.set(WORLD_WIDTH/2,WORLD_HEIGHT/2,0);
+        camera.update();
+
+        //setting up the world
+        world = new World(new Vector2(0,-98f), true);
+
+
         batch = new SpriteBatch();
-
         background = new Sprite(new Texture("background.png"));
-        ground = new Sprite(new Texture("ground.png"));
-        green = new Sprite(new Texture("green.png"));
-        blue = new Sprite(new Texture("blue.png"));
         catapult = new Sprite(new Texture("cat.png"));
-        wood = new Sprite(new Texture("horiz_wood.png"));
-        pig1 = new Sprite(new Texture("pig1.png"));
-        pig2 = new Sprite(new Texture("pig1.png"));
-        pig3 = new Sprite(new Texture("pig1.png"));
+        red = new Bird("red", 100,125,45f,world);
+        blue = new Bird("blue", 175, 125,45f, world);
         pause = new Sprite(new Texture("pause_button.png"));
-
         bgm = FirstLevel.getBgm();
 
-        pauseButtonBounds = new Rectangle(1170, 670, 0.10f * pause.getWidth(),
-            0.10f * pause.getHeight());
+        wood = new Sprite(new Texture("wood_horizontal.png"));
+        pig1 = new Pig("small",45,825,125,world);
+        pig2 = new Pig("small",45,975,125,world);
+
+
+        //ground setup
+        bodydef.type = BodyDef.BodyType.StaticBody;
+
+        // Position the ground at the center horizontally and at the bottom of the screen
+        bodydef.position.set(WORLD_WIDTH / 2, 75); // Set y to half the ground height
+        PolygonShape groundShape = new PolygonShape();
+        groundShape.setAsBox(WORLD_WIDTH / 2, 37.5f); // Width is full screen, height is 75px (37.5f * 2)
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = groundShape;
+        fixtureDef.friction = 1f;
+        fixtureDef.restitution = 0f;
+        fixtureDef.density = 5f;
+        // Create the ground body and fixture
+        Body groundBody = world.createBody(bodydef);
+        Fixture groundFixture = groundBody.createFixture(fixtureDef);
+        // Save reference to the body for rendering or other logic
+        ground = groundBody;
+        // Dispose the shape after use
+        groundShape.dispose();
+
+
+        //setting up the catapult
+        // Create the catapult physics body
+        catapult.setSize(catapult.getWidth()/2, catapult.getHeight()/2);
+        BodyDef catapultBodyDef = new BodyDef();
+        catapultBodyDef.type = BodyDef.BodyType.StaticBody; // Static body
+        catapultBodyDef.position.set(275, 150+37.5f); // Centered at the rectangle (adjust to match your setup)
+
+        PolygonShape catapultShape = new PolygonShape();
+        catapultShape.setAsBox(100/2, 100/2); // Half-width and half-height of the catapult (100X125 total)
+
+        FixtureDef catapultFixtureDef = new FixtureDef();
+        catapultFixtureDef.shape = catapultShape;
+        catapultFixtureDef.density = 0f;
+        catapultFixtureDef.friction = 0.8f;
+        catapultFixtureDef.restitution = 0f;
+
+        catapultBody = world.createBody(catapultBodyDef);
+        catapultBody.createFixture(catapultFixtureDef);
+
+        // Dispose the shape after creating the fixture
+        catapultShape.dispose();
+
+
+
+        //setting up the wood
+        woodBlocks = new ArrayList<>();
+
+        //horizontal x = +125
+
+        Block wood1,wood2,wood3,wood4,wood5,wood6,wood7,wood8;
+        wood1 = new Block("vertical",
+            750 ,150+ 37.5f,1f,world);
+        wood2 = new Block("horizontal",
+            825 ,150+wood1.getBlockSprite().getHeight()-27,1f,world);
+        wood3 = new Block("vertical",
+            750+wood2.getBlockSprite().getWidth() ,150+ 37.5f,1f,world);
+        wood4 = new Block("horizontal",
+            975,150+wood1.getBlockSprite().getHeight()-27,1f,world);
+        wood5 = new Block("vertical",
+            wood3.getX()+ wood2.getBlockSprite().getWidth() -10,150+ 37.5f,1f,world);
+        wood6 = new Block("vertical",
+            (wood1.getX()+ wood3.getX())/2 ,150+50+wood1.getBlockSprite().getHeight(),1f,world);
+        wood7 = new Block("horizontal",
+            wood6.getX()+75 ,150+wood1.getBlockSprite().getHeight()+wood6.getBlockSprite().getHeight()-24,1f,world);
+        wood8 = new Block("vertical",
+            wood6.getX()+ wood2.getBlockSprite().getWidth() -10 ,150+50+wood1.getBlockSprite().getHeight(),1f,world);
+        woodBlocks.add(wood1);
+        woodBlocks.add(wood2);
+        woodBlocks.add(wood3);
+        woodBlocks.add(wood4);
+        woodBlocks.add(wood5);
+        woodBlocks.add(wood6);
+        woodBlocks.add(wood7);
+        woodBlocks.add(wood8);
+
+        pig3 = new Pig("small",45,900,125+37.5f+wood1.getBlockSprite().getHeight(),world);
+
+
+
+
     }
 
     @Override
@@ -54,27 +169,58 @@ public class SecondLevel implements Screen {
     public void render(float delta) {
         clearScreen();
 
-        handleInput(pause.getBoundingRectangle());
+        //create the Box2D simulation
+        world.step(TIMESTEP, VELOCITYITERATIONS, POSITIONITERATIONS);
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
+
+        Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
+        debugRenderer.render(world, camera.combined);
 
         if (Gdx.input.isTouched()) {
             if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
                 Vector2 clickPosition = new Vector2(Gdx.input.getX(), Gdx.input.getY());
                 clickPosition.y = Gdx.graphics.getHeight() - clickPosition.y;
-
-                if (!pause.getBoundingRectangle().contains(clickPosition)) {
-                    ((Game) Gdx.app.getApplicationListener()).setScreen(new VictoryScreen(2));
-                }
             }
         }
 
         batch.begin();
         drawBackground();
-        drawGround();
-        drawBirdsAndCatapult();
         drawWoodBlocks();
-        drawPigs();
+        drawCatapult();
         drawPause();
+        world.getBodies(a1);
+        for (Body b : a1) {
+            if (b.getUserData() instanceof Bird) {
+                Bird bird = (Bird) b.getUserData();
+                Sprite sprite = bird.getBirdSprite();
+                sprite.setPosition(
+                    b.getPosition().x - sprite.getWidth() / 2,
+                    b.getPosition().y - sprite.getHeight() / 2
+                );
+                sprite.setRotation(b.getAngle() * MathUtils.radiansToDegrees);
+                sprite.draw(batch);
+            }
+
+            else if(b.getUserData() instanceof Pig){
+                Pig pig = (Pig) b.getUserData();
+                Sprite sprite = pig.getPigSprite();
+                sprite.setPosition(
+                    b.getPosition().x - sprite.getWidth() / 2,
+                    b.getPosition().y - sprite.getHeight() / 2
+                );
+                sprite.setRotation(b.getAngle() * MathUtils.radiansToDegrees);
+                sprite.draw(batch);
+            }
+        }
+        a1.clear();
+
+        drawGround();
         batch.end();
+
+
+
+        handleInput(pause.getBoundingRectangle());
     }
 
     private void clearScreen() {
@@ -99,86 +245,42 @@ public class SecondLevel implements Screen {
     }
 
     private void drawGround() {
-        ground.draw(batch);
-        ground.setSize(Gdx.graphics.getWidth(), 50);
+        Sprite groundSprite = new Sprite(new Texture("ground.png"));
+
+        // Set the size of the ground sprite to match the virtual world width
+        groundSprite.setSize(WORLD_WIDTH, 150); // Full screen width, height matching ground box
+
+        // Position the ground sprite at the bottom
+        groundSprite.setPosition(0, 0);
+
+        // Draw the ground sprite
+        groundSprite.draw(batch);
     }
 
-    private void drawBirdsAndCatapult() {
-        // Position for the catapult and birds
-        float catapultX = 100; // Move catapult farther from pigs
-        float catapultY = 30; // Keep catapult on the ground
-        float birdSpacing = 45; // Space between birds
+    private void drawCatapult() {
+        Vector2 catapultPosition = catapultBody.getPosition(); // Get the body's position
+        catapult.setPosition(
+            catapultPosition.x - catapult.getWidth()/2, // Center the sprite on the body
+            catapultPosition.y - catapult.getHeight()/2
+        );
 
-        // Draw the catapult
-        catapult.setSize(200, 120);
-        catapult.setPosition(catapultX, catapultY);
+        // Draw the catapult sprite
         catapult.draw(batch);
-
-        // Draw the green bird (first bird)
-        green.setSize(40, 40);
-        green.setPosition(catapultX - birdSpacing, catapultY + 10);
-        green.draw(batch);
-
-        // Draw the blue bird (second bird)
-        blue.setSize(40, 40);
-        blue.setPosition(catapultX - 2 * birdSpacing, catapultY + 5); // Adjust spacing
-        blue.draw(batch);
     }
 
 
     private void drawWoodBlocks() {
-        // Horizontal blocks
-        wood.setSize(120, 10);
-        wood.setPosition(730, 150);
-        wood.setRotation(0);
-        wood.draw(batch);
+        for (Block block : woodBlocks) {
+            // Sync the block's sprite with its Box2D body
+            block.updateSprite();
 
-        wood.setPosition(850, 150);
-        wood.setRotation(0);
-        wood.draw(batch);
-
-        // Vertical blocks
-        wood.setSize(120, 10);
-        wood.setPosition(650, 110);
-        wood.setRotation(90);
-        wood.draw(batch);
-
-        wood.setPosition(650+120, 110);
-        wood.setRotation(90);
-        wood.draw(batch);
-
-        wood.setPosition(650+240, 110);
-        wood.setRotation(90);
-        wood.draw(batch);
-
-        wood.setPosition(650+60, 110+115);
-        wood.setRotation(90);
-        wood.draw(batch);
-
-        wood.setPosition(650+180, 110+115);
-        wood.setRotation(90);
-        wood.draw(batch);
-
-        // Top block
-        wood.setSize(120, 10);
-        wood.setPosition(790, 260);
-        wood.setRotation(0);
-        wood.draw(batch);
+            // Draw the block's sprite
+            block.getBlockSprite().draw(batch);
+        }
     }
 
-    private void drawPigs() {
-        pig1.draw(batch);
-        pig1.setSize(40, 40);
-        pig1.setPosition(890, 40);
 
-        pig2.draw(batch);
-        pig2.setSize(40, 40);
-        pig2.setPosition(770, 40);
 
-        pig3.draw(batch);
-        pig3.setSize(40, 40);
-        pig3.setPosition(840, 155);
-    }
 
     private void drawPause() {
         pause.draw(batch);
@@ -205,14 +307,17 @@ public class SecondLevel implements Screen {
     @Override
     public void dispose() {
         background.getTexture().dispose();
-        ground.getTexture().dispose();
-        green.getTexture().dispose();
-        blue.getTexture().dispose();
+
+        blue.getBirdSprite().getTexture().dispose();
         catapult.getTexture().dispose();
         wood.getTexture().dispose();
-        pig1.getTexture().dispose();
-        pig2.getTexture().dispose();
-        pig3.getTexture().dispose();
+        pig1.getPigSprite().getTexture().dispose();
+        pig2.getPigSprite().getTexture().dispose();
+        pig3.getPigSprite().getTexture().dispose();
         pause.getTexture().dispose();
+        for (Block block : woodBlocks) {
+            block.dispose();
+        }
+        woodBlocks.clear();
     }
 }

@@ -1,8 +1,6 @@
 package com.AngryBirds;
 
-import com.AngryBirds.Screens.FirstLevel;
-import com.AngryBirds.Screens.FirstScreen;
-import com.AngryBirds.Screens.SettingScreen;
+import com.AngryBirds.Screens.*;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -11,7 +9,7 @@ import com.badlogic.gdx.Gdx;
 public class MainLauncher extends Game {
     @Override
     public void create() {
-        setScreen(new FirstScreen());
+        setScreen(new ThirdLevel());
     }
 
     @Override
