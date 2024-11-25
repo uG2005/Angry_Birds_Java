@@ -9,7 +9,7 @@ import com.badlogic.gdx.Gdx;
 public class MainLauncher extends Game {
     @Override
     public void create() {
-        setScreen(new ThirdLevel());
+        setScreen(new FirstLevel());
     }
 
     @Override

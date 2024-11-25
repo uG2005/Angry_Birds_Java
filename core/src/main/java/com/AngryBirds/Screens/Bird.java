@@ -11,17 +11,24 @@ import static com.badlogic.gdx.Gdx.graphics;
 
 public class Bird {
 
-    // Setting up Box2D
-    private Body body;
-    private boolean damaged_bird = false;
-    private String color;
-    private Sprite birdSprite;
-    private float size;
 
-    private boolean isDragging = false;
-    private Vector2 initialPosition;
-    private Vector2 dragStart = new Vector2();
-    private Vector2 dragEnd = new Vector2();
+    public static final float MAX_DRAG_DISTANCE = 150f;  // Maximum distance bird can be pulled back
+    public Vector2 catapult;  // Position of the slingshot/catapult
+    public boolean isDragging = false;
+    public boolean isLaunched = false;
+
+    public static final short CATEGORY_BIRD = 0x0001;
+    public static final short CATEGORY_CATAPULT = 0x0002;
+    public static final short CATEGORY_PIG = 0x0004;
+    public static final short CATEGORY_BLOCK = 0x0008;
+    public static final short CATEGORY_GROUND = 0x0010;
+
+    // Setting up Box2D
+    public Body body;
+    public boolean damaged_bird = false;
+    public String color;
+    public Sprite birdSprite;
+    public float size;
 
     // Constructor
     public Bird(String color, float x, float y, float size, World world) {
@@ -59,9 +66,12 @@ public class Bird {
 
         // Fixture properties
         f.shape = circle;
-        f.density = 2f;
+        f.density = 6f;
         f.friction = 0.5f;
-        f.restitution = 0.2f;
+        f.restitution = 0f;
+
+        f.filter.categoryBits = CATEGORY_BIRD;
+        f.filter.maskBits = (short)(CATEGORY_PIG | CATEGORY_BLOCK | CATEGORY_GROUND); // collide with everything EXCEPT catapult
 
         // Create the body and attach the fixture
         this.body = world.createBody(bd);
@@ -71,6 +81,11 @@ public class Bird {
 
         // Dispose of the shape after creating the fixture
         circle.dispose();
+
+        this.catapult = new Vector2(275, 150+37.5f*2);
+        this.isLaunched = false;
+
+
     }
 
 
@@ -117,6 +132,53 @@ public class Bird {
         return damaged_bird;
     }
 
+
+    public void startDrag() {
+        isDragging = true;
+        body.setActive(false); // Disable physics while dragging
+    }
+
+
+    public void updateDrag(Vector2 newPosition) {
+        if (!isDragging || isLaunched) return;
+
+        // Calculate vector from anchor to touch position
+        Vector2 dragVector = new Vector2(newPosition).sub(catapult);
+
+        // Limit drag distance
+        float dragDistance = dragVector.len();
+        if (dragDistance > MAX_DRAG_DISTANCE) {
+            dragVector.nor().scl(MAX_DRAG_DISTANCE);
+            newPosition = new Vector2(catapult).add(dragVector);
+        }
+
+        // Update bird position
+        body.setTransform(newPosition, 0);
+    }
+
+
+    public void launch() {
+        if (!isDragging || isLaunched) return;
+
+        isDragging = false;
+        isLaunched = true;
+        body.setActive(true);
+
+        // Calculate launch velocity (from current position to slingshot anchor)
+        Vector2 launchVector = new Vector2(Gdx.input.getX(), Gdx.input.getY());
+        float force = launchVector.len() * 70f; // Adjust multiplier for desired launch speed
+
+        launchVector.x = launchVector.x*70f;
+        launchVector.x = launchVector.x*70f;
+
+        // Apply the launch force
+        body.applyLinearImpulse(launchVector,body.getWorldCenter(),true);
+    }
+
+    // Add getters
+    public boolean isDragging() { return isDragging; }
+    public boolean isLaunched() { return isLaunched; }
+    public Vector2 getSlingshotAnchor() { return catapult; }
 
 
 

@@ -6,6 +6,12 @@ import com.badlogic.gdx.physics.box2d.*;
 
 public class Pig {
 
+    public static final short CATEGORY_BIRD = 0x0001;
+    public static final short CATEGORY_CATAPULT = 0x0002;
+    public static final short CATEGORY_PIG = 0x0004;
+    public static final short CATEGORY_BLOCK = 0x0008;
+    public static final short CATEGORY_GROUND = 0x0010;
+
     private Body body;
     private String type;
     private boolean damaged_pig = false;
@@ -46,6 +52,9 @@ public class Pig {
         f.density = 2f;
         f.friction = 0.5f;
         f.restitution = 0f;
+
+        f.filter.categoryBits = CATEGORY_PIG;
+        f.filter.maskBits = (short)(CATEGORY_PIG | CATEGORY_BLOCK | CATEGORY_GROUND|CATEGORY_BIRD); // collide with everything EXCEPT catapult
 
         // Create the body and attach the fixture
         this.body = world.createBody(bd);

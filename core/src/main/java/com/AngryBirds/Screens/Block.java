@@ -11,6 +11,12 @@ import java.util.Objects;
 
 public class Block {
 
+    public static final short CATEGORY_BIRD = 0x0001;
+    public static final short CATEGORY_CATAPULT = 0x0002;
+    public static final short CATEGORY_PIG = 0x0004;
+    public static final short CATEGORY_BLOCK = 0x0008;
+    public static final short CATEGORY_GROUND = 0x0010;
+
     private Body body;
     private boolean damaged_block = false;
     private String type;
@@ -47,6 +53,9 @@ public class Block {
         f.density = 2f;
         f.friction = 1f;
         f.restitution = 0.3f;
+
+        f.filter.categoryBits = CATEGORY_BLOCK;
+        f.filter.maskBits = (short)(CATEGORY_PIG | CATEGORY_BLOCK | CATEGORY_GROUND|CATEGORY_BIRD); // collide with everything EXCEPT catapult
 
 
 

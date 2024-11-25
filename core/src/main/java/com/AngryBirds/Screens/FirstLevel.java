@@ -26,6 +26,15 @@ import static com.badlogic.gdx.Gdx.graphics;
 
 public class FirstLevel implements Screen {
 
+    public static final short CATEGORY_BIRD = 0x0001;
+    public static final short CATEGORY_CATAPULT = 0x0002;
+    public static final short CATEGORY_PIG = 0x0004;
+    public static final short CATEGORY_BLOCK = 0x0008;
+    public static final short CATEGORY_GROUND = 0x0010;
+
+    private Vector3 touchPosition = new Vector3();
+    private boolean isDragging = false;
+
 
     private final float TIMESTEP = 1 / 60f; // frames
     private final int VELOCITYITERATIONS = 8;
@@ -64,7 +73,7 @@ public class FirstLevel implements Screen {
         camera.update();
 
         batch = new SpriteBatch();
-        world = new World(new Vector2(0, -98f), true);
+        world = new World(new Vector2(0, -980f), true);
         background = new Sprite(new Texture("background.png"));
         catapult = new Sprite(new Texture("cat.png"));
         green = new Bird("green", 100, 125, 45f , world);
@@ -80,7 +89,7 @@ public class FirstLevel implements Screen {
         // Ground setup in initializeTextures
         bodydef.type = BodyDef.BodyType.StaticBody;
 
-     // Position the ground at the center horizontally and at the bottom of the screen
+        // Position the ground at the center horizontally and at the bottom of the screen
         bodydef.position.set(WORLD_WIDTH / 2, 75); // Set y to half the ground height
         PolygonShape groundShape = new PolygonShape();
         groundShape.setAsBox(WORLD_WIDTH / 2, 37.5f); // Width is full screen, height is 75px (37.5f * 2)
@@ -89,11 +98,12 @@ public class FirstLevel implements Screen {
         fixtureDef.friction = 1f;
         fixtureDef.restitution = 0f;
         fixtureDef.density = 5f;
+        fixtureDef.filter.categoryBits = CATEGORY_GROUND;
+        fixtureDef.filter.maskBits = (short)(CATEGORY_BIRD | CATEGORY_PIG | CATEGORY_BLOCK);
         // Create the ground body and fixture
-        Body groundBody = world.createBody(bodydef);
-        Fixture groundFixture = groundBody.createFixture(fixtureDef);
-        // Save reference to the body for rendering or other logic
-        ground = groundBody;
+        ground = world.createBody(bodydef);
+        ground.createFixture(fixtureDef);
+
         // Dispose the shape after use
         groundShape.dispose();
 
@@ -116,6 +126,8 @@ public class FirstLevel implements Screen {
         catapultFixtureDef.density = 0f;
         catapultFixtureDef.friction = 0.8f;
         catapultFixtureDef.restitution = 0f;
+        catapultFixtureDef.filter.categoryBits = CATEGORY_CATAPULT;
+        catapultFixtureDef.filter.maskBits = (short)(CATEGORY_PIG | CATEGORY_BLOCK | CATEGORY_GROUND);
 
         catapultBody = world.createBody(catapultBodyDef);
         catapultBody.createFixture(catapultFixtureDef);
@@ -166,10 +178,11 @@ public class FirstLevel implements Screen {
         clearScreen();
 
         // Step the Box2D simulation
-        world.step(TIMESTEP, VELOCITYITERATIONS, POSITIONITERATIONS);
+        world.step(TIMESTEP, VELOCITYITERATIONS*10, POSITIONITERATIONS*10);
 
         camera.update();
         batch.setProjectionMatrix(camera.combined);
+
 
 
 
@@ -197,14 +210,6 @@ public class FirstLevel implements Screen {
                 sprite.setRotation(b.getAngle() * MathUtils.radiansToDegrees);
                 sprite.draw(batch);
             }
-//            else if(b == ground){
-//                Sprite sprite = new Sprite(new Texture("ground.png"));
-//                sprite.setPosition(
-//                    b.getPosition().x - sprite.getWidth() / 2,
-//                    b.getPosition().y - sprite.getHeight() / 2
-//                );
-//                sprite.draw(batch);
-//            }
             else if(b.getUserData() instanceof Pig){
                 Pig pig = (Pig) b.getUserData();
                 Sprite sprite = pig.getPigSprite();
@@ -220,8 +225,11 @@ public class FirstLevel implements Screen {
         drawGround();
 
         batch.end();
+
         Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
         debugRenderer.render(world, camera.combined);
+
+
 
         handleInput(pause.getBoundingRectangle());
 
@@ -296,22 +304,17 @@ public class FirstLevel implements Screen {
     public void resize(int width, int height) {
         // Handle resizing if needed
     }
-
     @Override
     public void pause() {
         // Not needed for this example
     }
-
     @Override
     public void resume() {
         // Not needed for this example
     }
-
     @Override
     public void hide() {
-        // Not needed for this example
     }
-
     @Override
     public void dispose() {
         background.getTexture().dispose();
@@ -329,54 +332,42 @@ public class FirstLevel implements Screen {
         }
         woodBlocks.clear();
     }
-
     public static Music getBgm() {
         return bgm;
     }
 
     private void placeBirdOnCatapult(Bird bird) {
-        // Get catapult's position
-        Vector2 catapultPosition = catapultBody.getPosition();
-
-        // Place bird slightly above the catapult
-        float birdX = catapultPosition.x;
-        float birdY = catapultPosition.y + (catapult.getHeight() / 2) + (bird.getSize() / 2);
-
-        // Update bird's position using Box2D's setTransform
-        bird.getBody().setTransform(birdX, birdY, 0); // (x, y, angle)
+        Vector2 anchorPos = bird.getSlingshotAnchor();
+        bird.getBody().setTransform(anchorPos.x, anchorPos.y, 0);
+        bird.getBody().setActive(false);
     }
 
 
     private void InputHandler(Bird bird) {
-        Vector3 mousePos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
-        if (Gdx.input.isTouched()) {
-            touched = true;
+        // Convert touch position to world coordinates
+        touchPosition.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+        camera.unproject(touchPosition);
+        Vector2 worldTouch = new Vector2(touchPosition.x, touchPosition.y);
 
-            // Get mouse position and convert to world coordinates
+        if (Gdx.input.justTouched()) {
+            // Check if touch is near the bird
+            Vector2 birdPos = bird.getBody().getPosition();
+            float touchRadius = 50f; // Adjust this value as needed
 
-            camera.unproject(mousePos);
-
-            // Calculate the angle and update bird's position
-            float angle = new Vector2(mousePos.x, mousePos.y).sub(bird.getBody().getPosition()).angleRad();
-            bird.getBody().setTransform(mousePos.x, mousePos.y, angle);
-
-            // Stop any motion while dragging
-            bird.getBody().setLinearVelocity(0, 0);
-            bird.getBody().setActive(true);
+            if (worldTouch.dst(birdPos) <= touchRadius && !bird.isLaunched()) {
+                bird.startDrag();
+                isDragging = true;
+            }
         }
 
-        if (touched && !Gdx.input.isTouched()) { // Release logic
-            touched = false;
+        if (isDragging && Gdx.input.isTouched()) {
+            bird.updateDrag(worldTouch);
+        }
 
-            // Get current bird position and calculate release velocity
-            Vector2 birdPosition = bird.getBody().getPosition();
-            Vector2 releaseVelocity = new Vector2(birdPosition.x - mousePos.x, birdPosition.y - mousePos.y).scl(-5f);
-
-            // Apply the release velocity
-            bird.getBody().setLinearVelocity(releaseVelocity);
+        if (isDragging && !Gdx.input.isTouched()) {
+            isDragging = false;
+            bird.launch();
         }
     }
 
-
 }
-
