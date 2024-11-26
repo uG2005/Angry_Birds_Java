@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.AngryBirds.Screens.Block;
+import com.AngryBirds.Screens.Bird;
 
 import java.util.ArrayList;
 
@@ -26,6 +27,7 @@ import static com.badlogic.gdx.Gdx.graphics;
 import static com.badlogic.gdx.Gdx.input;
 
 public class FirstLevel implements Screen {
+
 
     public static final short CATEGORY_BIRD = 0x0001;
     public static final short CATEGORY_CATAPULT = 0x0002;
@@ -59,7 +61,6 @@ public class FirstLevel implements Screen {
     private static Music bgm;
     private Sprite pause;
     private Body ground,catapultBody;
-    private InputManager inputManager;
 
     BodyDef bodydef = new BodyDef();
     FixtureDef fixtureDef = new FixtureDef();
@@ -80,11 +81,66 @@ public class FirstLevel implements Screen {
 
         batch = new SpriteBatch();
         world = new World(new Vector2(0, -98f), true);
+        world.setContactListener(new ContactListener() {
+            @Override
+            public void beginContact(Contact contact) {
+                Body c1 = contact.getFixtureA().getBody();
+                Body c2 = contact.getFixtureB().getBody();
+                if(c2.getUserData() instanceof  Bird){
+                    if(c1.getUserData() instanceof Pig ){
+                        ((Pig) c1.getUserData()).destroyed = true;
+                        ((Bird) c2.getUserData()).destroyed = true;
+                    }
+                    if(c1.getUserData() instanceof Block ){
+                         ((Block) c1.getUserData()).destroyed = true;
+
+                    }
+
+
+                }
+
+
+                if(c1.getUserData() instanceof Bird){
+                    if(c2.getUserData() instanceof Pig ){
+                        ((Pig) c2.getUserData()).destroyed = true;
+                        ((Bird) c1.getUserData()).destroyed = true;
+                    }
+                    if(c2.getUserData() instanceof Block ){
+                        ((Block) c2.getUserData()).destroyed = true;
+
+                    }
+
+
+
+                }
+
+
+
+
+            }
+
+
+
+            @Override
+            public void endContact(Contact contact) {
+
+            }
+
+            @Override
+            public void preSolve(Contact contact, Manifold oldManifold) {
+
+            }
+
+            @Override
+            public void postSolve(Contact contact, ContactImpulse impulse) {
+
+            }
+        });
         background = new Sprite(new Texture("background.png"));
         catapult = new Sprite(new Texture("cat.png"));
         green = new Bird("green", 100, 125, 45f , world);
         blue = new Bird("blue", 175, 125, 45f , world);
-        pig1 = new Pig("small",45,825,125,world);
+        pig1 = new Pig("small",45,500,125,world,false);
         pause = new Sprite(new Texture("pause_button.png"));
         bgm = Gdx.audio.newMusic(Gdx.files.internal("sounds\\game.wav"));
         bgm.setLooping(true);
@@ -101,7 +157,7 @@ public class FirstLevel implements Screen {
         groundShape.setAsBox(WORLD_WIDTH / 2, 37.5f); // Width is full screen, height is 75px (37.5f * 2)
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = groundShape;
-        fixtureDef.friction = 1f;
+        fixtureDef.friction = 0.1f;
         fixtureDef.restitution = 0f;
         fixtureDef.density = 5f;
         fixtureDef.filter.categoryBits = CATEGORY_GROUND;
@@ -133,7 +189,7 @@ public class FirstLevel implements Screen {
         catapultFixtureDef.friction = 0.8f;
         catapultFixtureDef.restitution = 0f;
         catapultFixtureDef.filter.categoryBits = CATEGORY_CATAPULT;
-        catapultFixtureDef.filter.maskBits = (short)(CATEGORY_PIG | CATEGORY_BLOCK | CATEGORY_GROUND);
+        catapultFixtureDef.filter.maskBits = (short)(CATEGORY_PIG | CATEGORY_BLOCK | CATEGORY_GROUND|CATEGORY_PIG);
 
         catapultBody = world.createBody(catapultBodyDef);
         catapultBody.createFixture(catapultFixtureDef);
@@ -147,23 +203,20 @@ public class FirstLevel implements Screen {
         woodBlocks = new ArrayList<>();
 
         // Creating wood blocks
-        Block b2 = new Block("vertical", 750,  150+37.5f, 1f, world);
+        Block b2 = new Block("glass","vertical", 450,  150+37.5f, 1f, world);
 
-        Block b1 = new Block("horizontal",
-            825,   150+b2.getBlockSprite().getHeight()-27, 1f, world);
-
-
-        Block b3 = new Block("vertical", 750+b1.getBlockSprite().getWidth()-2,  150+37.5f, 1f, world);
+//        Block b1 = new Block("horizontal",
+//            825,   150+b2.getBlockSprite().getHeight()-27, 1f, world);
 
 
-        woodBlocks.add(b1); // wood1
+        Block b3 = new Block("glass","vertical", 575,  150+37.5f, 1f, world);
+
+
+        //woodBlocks.add(b1); // wood1
         woodBlocks.add(b2); // wood2
         woodBlocks.add(b3); // wood3
 
-        placeBirdOnCatapult(blue);
-
-
-        inputManager=new InputManager(blue);
+////       placeBirdOnCatapult(blue);
 
 
 
@@ -172,12 +225,12 @@ public class FirstLevel implements Screen {
     private void initializeMusic() {
         bgm = Gdx.audio.newMusic(Gdx.files.internal("sounds/game.wav"));
         bgm.setLooping(true);
-        bgm.setVolume(0.75f);
+        bgm.setVolume(0.1f);
         bgm.play();
     }
     @Override
     public void show() {
-        Gdx.input.setInputProcessor(inputManager);
+
         // No specific actions needed on show
         initializeTextures();
         initializeMusic();
@@ -193,14 +246,17 @@ public class FirstLevel implements Screen {
         batch.setProjectionMatrix(camera.combined);
 
 
+        Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
+        debugRenderer.render(world, camera.combined);
 
 
         batch.begin();
 
         // Draw all elements
         drawBackground();
+        drawGround();
 
-        drawWoodBlocks();
+
         drawcatapult();
         drawpause();
 
@@ -227,24 +283,40 @@ public class FirstLevel implements Screen {
                 sprite.setRotation(b.getAngle() * MathUtils.radiansToDegrees);
                 sprite.draw(batch);
             }
+            else if(b.getUserData() instanceof Block){
+                Block block = (Block) b.getUserData();
+                Sprite sprite = block.getBlockSprite();
+                sprite.setPosition(
+                    b.getPosition().x - sprite.getWidth() / 2,
+                    b.getPosition().y - sprite.getHeight() / 2
+                );
+                sprite.setRotation(b.getAngle() * MathUtils.radiansToDegrees);
+                sprite.draw(batch);
+            }
         }
         a1.clear();
-        drawGround();
+
+
 
         batch.end();
 
-        Box2DDebugRenderer debugRenderer = new Box2DDebugRenderer();
-        debugRenderer.render(world, camera.combined);
 
 
 
         handleInput(pause.getBoundingRectangle());
 
+        if(!green.oncatapult){
+            placeBirdOnCatapult(green);
+        }
+        InputHandler(green);
+        if(green.isLaunched && !blue.oncatapult){
+            placeBirdOnCatapult(blue);
 
-        InputHandler(blue);
+        }
+        if(blue.oncatapult){InputHandler(blue);}
 
 
-
+        destroy();
 
 
     }
@@ -347,13 +419,19 @@ public class FirstLevel implements Screen {
     }
 
     private void placeBirdOnCatapult(Bird bird) {
-        Vector2 anchorPos = bird.getSlingshotAnchor();
-        bird.getBody().setTransform(anchorPos.x, anchorPos.y, 0);
-        bird.getBody().setActive(false);
+            bird.oncatapult = true;
+            bird.isLaunched = false;  // Explicitly reset this
+            bird.isDragging = false;  // Reset dragging state
+            Vector2 anchorPos = bird.getSlingshotAnchor();
+            bird.getBody().setTransform(anchorPos.x, anchorPos.y, 0);
+            bird.getBody().setActive(false);
+            bird.rest();  // Reset the bird's physical state
     }
 
 
     private void InputHandler(Bird bird) {
+        if(!bird.oncatapult) return;
+        bird.isLaunched = false;
         // Convert touch position to world coordinates
         touchPosition.set(Gdx.input.getX(), Gdx.input.getY(), 0);
         camera.unproject(touchPosition);
@@ -370,14 +448,45 @@ public class FirstLevel implements Screen {
             }
         }
 
+
+
         if (isDragging && Gdx.input.isTouched()) {
             bird.updateDrag(worldTouch);
         }
 
+
         if (isDragging && !Gdx.input.isTouched()) {
-            isDragging = false;
+
             bird.launch();
+            isDragging = false;
         }
+
     }
+
+    public void destroy(){
+        world.getBodies(a1);
+
+        for(Body body: a1){
+
+            if(body.getUserData() instanceof  Bird){
+                if(((Bird) body.getUserData()).destroyed){
+                    world.destroyBody(body);
+                }
+            }
+            if(body.getUserData() instanceof  Pig){
+                if(((Pig) body.getUserData()).destroyed){
+                    world.destroyBody(body);
+                }
+            }
+            if(body.getUserData() instanceof Block){
+                if(((Block) body.getUserData()).destroyed){
+                    world.destroyBody(body);
+                }
+            }
+        }
+
+        a1.clear();
+    }
+
 
 }

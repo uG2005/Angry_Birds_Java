@@ -12,14 +12,19 @@ public class Pig {
     public static final short CATEGORY_BLOCK = 0x0008;
     public static final short CATEGORY_GROUND = 0x0010;
 
+    private int health =1;
     private Body body;
     private String type;
     private boolean damaged_pig = false;
     private Sprite pigSprite;
+    public boolean destroyed = false;
+    public boolean initiallyonblock = false;
 
-    public Pig(String type, float size, float x, float y, World world) {
+    public Pig(String type, float size, float x, float y, World world, boolean onblock) {
         BodyDef bd = new BodyDef();
         FixtureDef f = new FixtureDef();
+
+        initiallyonblock = onblock;
 
         // Initialize the pig's sprite based on the type
         if (type.equalsIgnoreCase("small")) {
@@ -54,7 +59,7 @@ public class Pig {
         f.restitution = 0f;
 
         f.filter.categoryBits = CATEGORY_PIG;
-        f.filter.maskBits = (short)(CATEGORY_PIG | CATEGORY_BLOCK | CATEGORY_GROUND|CATEGORY_BIRD); // collide with everything EXCEPT catapult
+        f.filter.maskBits = (short)(CATEGORY_PIG | CATEGORY_BLOCK | CATEGORY_GROUND|CATEGORY_BIRD|CATEGORY_CATAPULT); // collide with everything EXCEPT catapult
 
         // Create the body and attach the fixture
         this.body = world.createBody(bd);

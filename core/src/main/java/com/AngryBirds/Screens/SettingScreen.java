@@ -24,6 +24,8 @@ public class SettingScreen implements Screen {
     //private final FitViewport viewport;
     private OrthographicCamera camera;
     private Rectangle rect1, rect2, rect3;
+    private boolean isMusicOn = true;
+    private boolean isSoundOn = true;
 
     private static final float WORLD_WIDTH = 1280;
     private static final float WORLD_HEIGHT = 720;
@@ -89,18 +91,22 @@ public class SettingScreen implements Screen {
         background.setSize(450,300);
         background.setPosition((Gdx.graphics.getWidth()-450)/2,(Gdx.graphics.getHeight()-300)/2);
 
+
         //setting the close button
         close.setSize(50,50);
         close.setPosition(background.getX()+background.getWidth()-close.getWidth()/2,background.getY()+background.getHeight()-close.getHeight()/2);
 
         //setting the music on
         musicOn.setSize(70,70);
+        musicOff.setSize(70, 70);
         musicOn.setPosition(background.getX()+background.getWidth()/4,background.getY()+background.getHeight()/2);
-
+        musicOff.setPosition(musicOn.getX(), musicOn.getY());
 
         //setting the sound on
         soundOn.setSize(70,70);
+        soundOff.setSize(70, 70);
         soundOn.setPosition(background.getX()+0.60f*background.getWidth(),background.getY()+background.getHeight()/2);
+        soundOff.setPosition(soundOn.getX(), soundOn.getY());
 
 
         // Load font from .ttf file
@@ -121,8 +127,11 @@ public class SettingScreen implements Screen {
         batch.begin();
         background.draw(batch);
         close.draw(batch);
-        soundOn.draw(batch);
-        musicOn.draw(batch);
+        if (isMusicOn) musicOn.draw(batch);
+        else musicOff.draw(batch);
+
+        if (isSoundOn) soundOn.draw(batch);
+        else soundOff.draw(batch);
 
         // Render text with the font
         font.draw(batch, "Settings", background.getX()  + background.getWidth()/2 -75, (background.getY()) + 275);
@@ -142,6 +151,15 @@ public class SettingScreen implements Screen {
                     System.out.println("Sprite clicked!");
 
                     ((Game) Gdx.app.getApplicationListener()).setScreen(new FirstScreen());
+                }
+
+                if (musicOn.getBoundingRectangle().contains(clickPosition) || musicOff.getBoundingRectangle().contains(clickPosition)) {
+                    isMusicOn = !isMusicOn;
+                    if (isMusicOn) {
+                        FirstScreen.getMusic().play(); // Resume music
+                    } else {
+                        FirstScreen.getMusic().pause(); // Pause music
+                    }
                 }
             }
         }

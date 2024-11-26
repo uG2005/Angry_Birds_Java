@@ -18,22 +18,34 @@ public class Block {
     public static final short CATEGORY_GROUND = 0x0010;
 
     private Body body;
-    private boolean damaged_block = false;
+    public boolean destroyed = false;
     private String type;
     private Sprite BlockSprite;
     private float x,y;
 
-    public Block(String type, float x, float y, float size, World world){
+    public Block(String material, String type, float x, float y, float size, World world){
         BodyDef bd = new BodyDef();
         FixtureDef f = new FixtureDef();
 
         if(type.equalsIgnoreCase("horizontal")){
+            if(material.equalsIgnoreCase("wood")){
             BlockSprite = new Sprite(new Texture("wood_horizontal.png"));
             BlockSprite.setSize(BlockSprite.getWidth()/2, BlockSprite.getHeight()/2);
+            }
+            else if(material.equalsIgnoreCase("glass")){
+                BlockSprite = new Sprite(new Texture("glass.png"));
+                BlockSprite.setSize(BlockSprite.getWidth()/2, BlockSprite.getHeight()/2);
+            }
         }
         else if(type.equalsIgnoreCase("vertical")){
+            if(material.equalsIgnoreCase("wood")){
             BlockSprite = new Sprite(new Texture("wood_vertical.png"));
             BlockSprite.setSize(BlockSprite.getWidth()/2, BlockSprite.getHeight()/2);
+            }
+            else if(material.equalsIgnoreCase("glass")){
+                BlockSprite = new Sprite(new Texture("glass_vertical.jpg"));
+                BlockSprite.setSize(BlockSprite.getWidth()/2, BlockSprite.getHeight()/2);
+            }
         }
 
         this.BlockSprite.setOrigin(BlockSprite.getWidth() / 2.0f, BlockSprite.getHeight() / 2.0f);
@@ -50,12 +62,12 @@ public class Block {
 
 
         f.shape = rect;
-        f.density = 2f;
+        f.density = 1f;
         f.friction = 1f;
-        f.restitution = 0.3f;
+        f.restitution = 0f;
 
         f.filter.categoryBits = CATEGORY_BLOCK;
-        f.filter.maskBits = (short)(CATEGORY_PIG | CATEGORY_BLOCK | CATEGORY_GROUND|CATEGORY_BIRD); // collide with everything EXCEPT catapult
+        f.filter.maskBits = (short)(CATEGORY_PIG | CATEGORY_BLOCK | CATEGORY_GROUND|CATEGORY_BIRD |CATEGORY_CATAPULT); // collide with everything EXCEPT catapult
 
 
 

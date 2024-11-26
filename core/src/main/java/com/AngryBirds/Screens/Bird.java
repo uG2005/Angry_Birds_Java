@@ -16,6 +16,8 @@ public class Bird {
     public Vector2 catapult;  // Position of the slingshot/catapult
     public boolean isDragging = false;
     public boolean isLaunched = false;
+    public boolean oncatapult = false;
+    public boolean destroyed = false;
 
     public static final short CATEGORY_BIRD = 0x0001;
     public static final short CATEGORY_CATAPULT = 0x0002;
@@ -31,6 +33,7 @@ public class Bird {
     public float size;
     float worldX;
     float worldY;
+
 
     // Constructor
     public Bird(String color, float x, float y, float size, World world) {
@@ -69,7 +72,7 @@ public class Bird {
         // Fixture properties
         f.shape = circle;
         f.density = 6f;
-        f.friction = 0.5f;
+        f.friction = 0f;
         f.restitution = 0f;
 
         f.filter.categoryBits = CATEGORY_BIRD;
@@ -132,6 +135,7 @@ public class Bird {
         // Calculate vector from anchor to touch position
         Vector2 dragVector = new Vector2(newPosition).sub(catapult);
 
+
         // Limit drag distance
         float dragDistance = dragVector.len();
         if (dragDistance > MAX_DRAG_DISTANCE) {
@@ -145,27 +149,31 @@ public class Bird {
 
 
     public void launch() {
-        if (!isDragging || isLaunched) return;
         isDragging = false;
         isLaunched = true;
         body.setActive(true);
-        float releaseX=worldX;
-        float releaseY=worldY;
+
 
         // Calculate launch velocity (from current position to slingshot anchor)
-        Vector2 launchVector = new Vector2(catapult).sub(body.getPosition());
-        //float force = launchVector.len() * 7; // Adjust multiplier for desired launch speed
-        float forceX = (launchVector.x)*6000; // Adjust multiplier as needed
-        float forceY = (launchVector.y)*2000;
+        Vector2 launchVector = new Vector2(catapult).sub(body.getPosition()).scl(10);
+
+        body.setLinearVelocity(launchVector.x*100f,0);
+        body.applyLinearImpulse(new Vector2(10,0),body.getWorldCenter(),true);
+        body.applyForceToCenter(1000f,0,true);
 
 
-        body.setLinearVelocity(launchVector);
+
+
+
     }
 
     // Add getters
     public boolean isDragging() { return isDragging; }
     public boolean isLaunched() { return isLaunched; }
     public Vector2 getSlingshotAnchor() { return catapult; }
+
+
+
 
 
 

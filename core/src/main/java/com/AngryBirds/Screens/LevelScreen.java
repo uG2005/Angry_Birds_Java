@@ -63,7 +63,7 @@ public class LevelScreen implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 System.out.println("Level 1 button clicked.");
-                //FirstScreen.getMusic().stop();
+                FirstScreen.getMusic().stop();
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new FirstLevel());
             }
         });
