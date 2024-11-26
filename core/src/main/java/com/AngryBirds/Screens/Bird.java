@@ -29,6 +29,8 @@ public class Bird {
     public String color;
     public Sprite birdSprite;
     public float size;
+    float worldX;
+    float worldY;
 
     // Constructor
     public Bird(String color, float x, float y, float size, World world) {
@@ -37,8 +39,8 @@ public class Bird {
         FixtureDef f = new FixtureDef();
 
 
-        float worldX = x ;
-        float worldY = y;
+        worldX = x ;
+        worldY = y;
 
 
         this.color = color;
@@ -97,21 +99,6 @@ public class Bird {
         damaged_bird = false;  // Reset damaged state
     }
 
-    // Collide with a Block
-    public void collideWithBlock(Block block) {
-        if (!damaged_bird) {
-//            block.setDamaged(true);  // Mark the block as damaged
-            damaged_bird = true;     // Mark the bird as damaged
-        }
-    }
-
-    // Collide with a Pig
-    public void collideWithPig(Pig pig) {
-        if (!damaged_bird) {
-            pig.setDamagedpig(true);  // Mark the pig as damaged
-            damaged_bird = true;   // Mark the bird as damaged
-        }
-    }
 
     // Getter for the bird's body
     public Body getBody() {
@@ -159,20 +146,20 @@ public class Bird {
 
     public void launch() {
         if (!isDragging || isLaunched) return;
-
         isDragging = false;
         isLaunched = true;
         body.setActive(true);
+        float releaseX=worldX;
+        float releaseY=worldY;
 
         // Calculate launch velocity (from current position to slingshot anchor)
-        Vector2 launchVector = new Vector2(Gdx.input.getX(), Gdx.input.getY());
-        float force = launchVector.len() * 70f; // Adjust multiplier for desired launch speed
+        Vector2 launchVector = new Vector2(catapult).sub(body.getPosition());
+        //float force = launchVector.len() * 7; // Adjust multiplier for desired launch speed
+        float forceX = (launchVector.x)*6000; // Adjust multiplier as needed
+        float forceY = (launchVector.y)*2000;
 
-        launchVector.x = launchVector.x*70f;
-        launchVector.x = launchVector.x*70f;
 
-        // Apply the launch force
-        body.applyLinearImpulse(launchVector,body.getWorldCenter(),true);
+        body.setLinearVelocity(launchVector);
     }
 
     // Add getters

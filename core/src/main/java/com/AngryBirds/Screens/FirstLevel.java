@@ -23,6 +23,7 @@ import com.AngryBirds.Screens.Block;
 import java.util.ArrayList;
 
 import static com.badlogic.gdx.Gdx.graphics;
+import static com.badlogic.gdx.Gdx.input;
 
 public class FirstLevel implements Screen {
 
@@ -42,6 +43,7 @@ public class FirstLevel implements Screen {
     boolean touched = false;
 
 
+
     //IMPLEMENTing box 2d
     Array<Body> a1 = new Array<>();
 
@@ -57,6 +59,7 @@ public class FirstLevel implements Screen {
     private static Music bgm;
     private Sprite pause;
     private Body ground,catapultBody;
+    private InputManager inputManager;
 
     BodyDef bodydef = new BodyDef();
     FixtureDef fixtureDef = new FixtureDef();
@@ -68,12 +71,15 @@ public class FirstLevel implements Screen {
 
     private void initializeTextures() {
 
+
+
         camera = new OrthographicCamera(WORLD_WIDTH, WORLD_HEIGHT);
         camera.position.set(WORLD_WIDTH/2,WORLD_HEIGHT/2,0);
+
         camera.update();
 
         batch = new SpriteBatch();
-        world = new World(new Vector2(0, -980f), true);
+        world = new World(new Vector2(0, -98f), true);
         background = new Sprite(new Texture("background.png"));
         catapult = new Sprite(new Texture("cat.png"));
         green = new Bird("green", 100, 125, 45f , world);
@@ -157,6 +163,8 @@ public class FirstLevel implements Screen {
         placeBirdOnCatapult(blue);
 
 
+        inputManager=new InputManager(blue);
+
 
 
     }
@@ -169,6 +177,7 @@ public class FirstLevel implements Screen {
     }
     @Override
     public void show() {
+        Gdx.input.setInputProcessor(inputManager);
         // No specific actions needed on show
         initializeTextures();
         initializeMusic();
@@ -182,8 +191,6 @@ public class FirstLevel implements Screen {
 
         camera.update();
         batch.setProjectionMatrix(camera.combined);
-
-
 
 
 
@@ -233,7 +240,10 @@ public class FirstLevel implements Screen {
 
         handleInput(pause.getBoundingRectangle());
 
+
         InputHandler(blue);
+
+
 
 
 
