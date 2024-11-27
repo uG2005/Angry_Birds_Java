@@ -71,7 +71,7 @@ public class Bird {
 
         // Fixture properties
         f.shape = circle;
-        f.density = 6f;
+        f.density = 10f;
         f.friction = 0f;
         f.restitution = 0f;
 

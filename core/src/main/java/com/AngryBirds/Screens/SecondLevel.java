@@ -337,7 +337,11 @@ public class SecondLevel implements Screen {
         InputHandler(blue);
 
         // Handle input for red bird
-        if(!red.oncatapult && blue.isLaunched){
+        if(blue.isLaunched && !red.oncatapult ){
+            placeBirdOnCatapult(red);
+        }
+
+        if(red.oncatapult){
             InputHandler(red);
         }
         destroy();
@@ -444,14 +448,18 @@ public class SecondLevel implements Screen {
 
     private void placeBirdOnCatapult(Bird bird) {
         bird.oncatapult = true;
-        bird.isDragging = false;  // Reset dragging state
+        bird.isLaunched = false;
+        bird.isDragging = false;
+
         Vector2 anchorPos = bird.getSlingshotAnchor();
         bird.getBody().setTransform(anchorPos.x, anchorPos.y, 0);
         bird.getBody().setActive(false);
-        bird.rest();  // Reset the bird's physical state
+        bird.rest();
     }
-
     private void InputHandler(Bird bird) {
+        // Remove the oncatapult check that was preventing launch
+        if (bird.isLaunched) return;  // Only prevent handling if the bird is already launched
+
         // Convert touch position to world coordinates
         touchPosition.set(Gdx.input.getX(), Gdx.input.getY(), 0);
         camera.unproject(touchPosition);
@@ -462,19 +470,18 @@ public class SecondLevel implements Screen {
             Vector2 birdPos = bird.getBody().getPosition();
             float touchRadius = 50f; // Adjust this value as needed
 
-            if (worldTouch.dst(birdPos) <= touchRadius) {
+            if (worldTouch.dst(birdPos) <= touchRadius && !bird.isLaunched()) {
                 bird.startDrag();
-                isDragging = true;
             }
         }
 
-        if (isDragging && Gdx.input.isTouched()) {
+        if (bird.isDragging() && Gdx.input.isTouched()) {
             bird.updateDrag(worldTouch);
         }
 
-        if (isDragging && !Gdx.input.isTouched()) {
-            isDragging = false;
+        if (bird.isDragging() && !Gdx.input.isTouched()) {
             bird.launch();
+            //    bird.oncatapult = false;  // Mark the bird as no longer on the catapult
         }
     }
     public void destroy(){

@@ -62,7 +62,7 @@ public class Block {
 
 
         f.shape = rect;
-        f.density = 1f;
+        f.density = 0.5f;
         f.friction = 1f;
         f.restitution = 0f;
 

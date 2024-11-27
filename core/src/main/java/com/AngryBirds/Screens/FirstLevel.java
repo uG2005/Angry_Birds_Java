@@ -309,11 +309,14 @@ public class FirstLevel implements Screen {
             placeBirdOnCatapult(green);
         }
         InputHandler(green);
+
         if(green.isLaunched && !blue.oncatapult){
             placeBirdOnCatapult(blue);
-
         }
-        if(blue.oncatapult){InputHandler(blue);}
+
+        if(blue.oncatapult){
+            InputHandler(blue);
+        }
 
 
         destroy();
@@ -419,19 +422,19 @@ public class FirstLevel implements Screen {
     }
 
     private void placeBirdOnCatapult(Bird bird) {
-            bird.oncatapult = true;
-            bird.isLaunched = false;  // Explicitly reset this
-            bird.isDragging = false;  // Reset dragging state
-            Vector2 anchorPos = bird.getSlingshotAnchor();
-            bird.getBody().setTransform(anchorPos.x, anchorPos.y, 0);
-            bird.getBody().setActive(false);
-            bird.rest();  // Reset the bird's physical state
-    }
-
-
-    private void InputHandler(Bird bird) {
-        if(!bird.oncatapult) return;
+        bird.oncatapult = true;
         bird.isLaunched = false;
+        bird.isDragging = false;
+
+        Vector2 anchorPos = bird.getSlingshotAnchor();
+        bird.getBody().setTransform(anchorPos.x, anchorPos.y, 0);
+        bird.getBody().setActive(false);
+        bird.rest();
+    }
+    private void InputHandler(Bird bird) {
+        // Remove the oncatapult check that was preventing launch
+        if (bird.isLaunched) return;  // Only prevent handling if the bird is already launched
+
         // Convert touch position to world coordinates
         touchPosition.set(Gdx.input.getX(), Gdx.input.getY(), 0);
         camera.unproject(touchPosition);
@@ -444,23 +447,17 @@ public class FirstLevel implements Screen {
 
             if (worldTouch.dst(birdPos) <= touchRadius && !bird.isLaunched()) {
                 bird.startDrag();
-                isDragging = true;
             }
         }
 
-
-
-        if (isDragging && Gdx.input.isTouched()) {
+        if (bird.isDragging() && Gdx.input.isTouched()) {
             bird.updateDrag(worldTouch);
         }
 
-
-        if (isDragging && !Gdx.input.isTouched()) {
-
+        if (bird.isDragging() && !Gdx.input.isTouched()) {
             bird.launch();
-            isDragging = false;
+        //    bird.oncatapult = false;  // Mark the bird as no longer on the catapult
         }
-
     }
 
     public void destroy(){
