@@ -138,8 +138,8 @@ public class FirstLevel implements Screen {
         });
         background = new Sprite(new Texture("background.png"));
         catapult = new Sprite(new Texture("cat.png"));
-        green = new Bird("green", 100, 125, 45f , world);
-        blue = new Bird("blue", 175, 125, 45f , world);
+        green = new Bird("green", 100, 125, 45f , world,false);
+        blue = new Bird("blue", 175, 125, 45f , world,false);
         pig1 = new Pig("small",45,500,125,world,false);
         pause = new Sprite(new Texture("pause_button.png"));
         bgm = Gdx.audio.newMusic(Gdx.files.internal("sounds\\game.wav"));

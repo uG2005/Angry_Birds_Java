@@ -1,15 +1,31 @@
+plugins {
+  id 'java'
+}
+
+ext.gdxVersion = '1.12.1'
+
+repositories {
+  mavenCentral()  // Ensure this repository is included for fetching dependencies
+}
+
 dependencies {
-  api "com.badlogicgames.gdx:gdx:$gdxVersion" // Core libGDX dependency
+  // Core libGDX dependencies
+  api "com.badlogicgames.gdx:gdx:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
-  implementation "com.badlogicgames.gdx:gdx-box2d:$gdxVersion" // Box2D dependency
+  implementation "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
 
-  // Add platform dependencies for native libraries
+  // Platform dependencies for native libraries
   implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
   implementation "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
-  implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop" // Box2D native library
+  implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
+  implementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
 
-  if (enableGraalNative == 'true') {
-    implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
-  }
+  // JUnit 4 dependencies
+  testImplementation 'junit:junit:4.13.2'
+
+}
+
+test {
+  useJUnit()  // Ensures JUnit 4 is used for tests
 }
