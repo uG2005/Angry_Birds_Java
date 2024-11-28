@@ -1,5 +1,6 @@
 package com.AngryBirds.Screens;
 
+import com.AngryBirds.GameData;
 import com.AngryBirds.MainLauncher;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -40,6 +41,8 @@ public class LevelScreen implements Screen {
         float buttonHeight = 80f;
         float spacing = 30f;
 
+        int currentLevel = GameData.getCurrentLevel();
+
         // Back button
         Texture backTexture = new Texture("backy.png");
         ImageButton backButton = new ImageButton(new TextureRegionDrawable(backTexture));
@@ -54,50 +57,38 @@ public class LevelScreen implements Screen {
         });
         stage.addActor(backButton);
 
-        // Level 1 button
-        Texture level1Texture = new Texture("level1.png");
-        ImageButton level1Button = new ImageButton(new TextureRegionDrawable(level1Texture));
-        level1Button.setSize(buttonWidth, buttonHeight);
-        level1Button.setPosition((viewport.getWorldWidth() - 3 * buttonWidth - 2 * spacing) / 2, viewport.getWorldHeight() / 2 - buttonHeight);
-        level1Button.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Level 1 button clicked.");
-                FirstScreen.getMusic().stop();
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new FirstLevel());
-            }
-        });
-        stage.addActor(level1Button);
+        String[] levelTextures = {"level1.png", "level2.png", "level3.png"};
+        for (int i = 0; i < 3; i++) {
+            Texture levelTexture = new Texture(levelTextures[i]);
+            ImageButton levelButton = new ImageButton(new TextureRegionDrawable(levelTexture));
+            levelButton.setSize(buttonWidth, buttonHeight);
+            levelButton.setPosition((viewport.getWorldWidth() - 3 * buttonWidth - 2 * spacing) / 2 + i * (buttonWidth + spacing), viewport.getWorldHeight() / 2 - buttonHeight);
 
-        // Add more buttons similarly (e.g., level 2, level 3)
-        Texture level2Texture = new Texture("level2.png");
-        ImageButton level2Button = new ImageButton(new TextureRegionDrawable(level2Texture));
-        level2Button.setSize(buttonWidth, buttonHeight);
-        level2Button.setPosition((viewport.getWorldWidth() -  buttonWidth -  spacing) / 2, viewport.getWorldHeight()  / 2 - buttonHeight);
-        level2Button.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Level 1 button clicked.");
-                //FirstScreen.getMusic().stop();
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new SecondLevel());
+            if (i + 1 > currentLevel) {
+                levelButton.setDisabled(true);
+                levelButton.setColor(0.5f, 0.5f, 0.5f, 1); // Gray out locked levels
+            } else {
+                final int level = i + 1;
+                levelButton.addListener(new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        switch (level) {
+                            case 1:
+                                ((Game) Gdx.app.getApplicationListener()).setScreen(new FirstLevel());
+                                break;
+                            case 2:
+                                ((Game) Gdx.app.getApplicationListener()).setScreen(new SecondLevel());
+                                break;
+                            case 3:
+                                ((Game) Gdx.app.getApplicationListener()).setScreen(new ThirdLevel());
+                                break;
+                        }
+                    }
+                });
             }
-        });
-        stage.addActor(level2Button);
+            stage.addActor(levelButton);
 
-        Texture level3Texture = new Texture("level3.png");
-        ImageButton level3Button = new ImageButton(new TextureRegionDrawable(level3Texture));
-        level3Button.setSize(buttonWidth, buttonHeight);
-        level3Button.setPosition((viewport.getWorldWidth() +   buttonWidth +  spacing) / 2, viewport.getWorldHeight() / 2 - buttonHeight);
-        level3Button.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                System.out.println("Level 1 button clicked.");
-                //FirstScreen.getMusic().stop();
-                ((Game) Gdx.app.getApplicationListener()).setScreen(new ThirdLevel());
-            }
-        });
-        stage.addActor(level3Button);
-
+        }
     }
 
     @Override
@@ -121,13 +112,19 @@ public class LevelScreen implements Screen {
     }
 
     @Override
-    public void pause() {}
+    public void pause() {
+
+    }
 
     @Override
-    public void resume() {}
+    public void resume() {
+
+    }
 
     @Override
-    public void hide() {}
+    public void hide() {
+
+    }
 
     @Override
     public void dispose() {
