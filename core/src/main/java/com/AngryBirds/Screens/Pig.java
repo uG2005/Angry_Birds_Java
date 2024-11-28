@@ -86,4 +86,8 @@ public class Pig {
         );
         pigSprite.setRotation(body.getAngle() * (180f / (float) Math.PI)); // Convert radians to degrees
     }
+
+    public boolean isdestroyed(){
+        return this.destroyed;
+    }
 }
