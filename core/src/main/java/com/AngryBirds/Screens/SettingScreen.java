@@ -161,6 +161,7 @@ public class SettingScreen implements Screen {
                         FirstScreen.getMusic().pause(); // Pause music
                     }
                 }
+
             }
         }
     }
