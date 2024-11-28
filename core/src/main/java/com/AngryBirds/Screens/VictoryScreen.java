@@ -1,5 +1,6 @@
 package com.AngryBirds.Screens;
 
+import com.AngryBirds.GameData;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -83,9 +84,6 @@ public class VictoryScreen implements Screen {
         stage.act(delta);
         stage.draw();
 
-        if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.RIGHT)) {
-            ((Game) Gdx.app.getApplicationListener()).setScreen(new LossScreen());
-        }
     }
 
     @Override
@@ -113,19 +111,21 @@ public class VictoryScreen implements Screen {
     }
 
     private void loadNextLevel() {
-        Game game = (Game) Gdx.app.getApplicationListener();
-        switch (currentLevel) {
-            case 1:
-                game.setScreen(new SecondLevel());
-                break;
+        int nextLevel = (GameData.getCurrentLevel()) + 1;
+        GameData.setCurrentLevel(nextLevel);
+        switch (nextLevel) {
             case 2:
-                game.setScreen(new ThirdLevel());
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new SecondLevel());
+                break;
+            case 3:
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new ThirdLevel());
                 break;
             default:
                 System.out.println("No more levels available!");
                 break;
         }
     }
+
 
     private void restartCurrentLevel() {
         Game game = (Game) Gdx.app.getApplicationListener();
