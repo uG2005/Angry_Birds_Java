@@ -1,5 +1,6 @@
 package com.AngryBirds.Screens;
 
+import com.AngryBirds.GameData;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -18,6 +19,8 @@ public class LossScreen implements Screen {
     private Texture backgroundTexture;
     private ImageButton replayButton;
 
+    public LossScreen(int currentLevel) {
+    }
 
 
     @Override
@@ -34,8 +37,7 @@ public class LossScreen implements Screen {
 
         // Add listener to replay button
         replayButton.addListener(event -> {
-            // Logic to replay
-            ((Game) Gdx.app.getApplicationListener()).setScreen(new FirstLevel());
+            restartCurrentLevel();
             return true;
         });
         stage = new Stage(new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()), batch);
@@ -49,6 +51,25 @@ public class LossScreen implements Screen {
         replayButton.setPosition(buttonX, buttonY);
 
         stage.addActor(replayButton);
+    }
+
+
+    private void restartCurrentLevel() {
+        int currentLevel = GameData.getCurrentLevel();
+        switch (currentLevel) {
+            case 1:
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new FirstLevel());
+                break;
+            case 2:
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new SecondLevel());
+                break;
+            case 3:
+                ((Game) Gdx.app.getApplicationListener()).setScreen(new ThirdLevel());
+                break;
+            default:
+                System.out.println("Invalid level!");
+                break;
+        }
     }
 
 
