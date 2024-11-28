@@ -18,7 +18,6 @@ public class Bird {
     public boolean isLaunched = false;
     public boolean oncatapult = false;
     public boolean destroyed = false;
-    public boolean testing =false;
 
     public static final short CATEGORY_BIRD = 0x0001;
     public static final short CATEGORY_CATAPULT = 0x0002;
@@ -37,7 +36,7 @@ public class Bird {
 
 
     // Constructor
-    public Bird(String color, float x, float y, float size, World world, boolean test) {
+    public Bird(String color, float x, float y, float size, World world) {
 
         BodyDef bd = new BodyDef();
         FixtureDef f = new FixtureDef();
@@ -46,27 +45,21 @@ public class Bird {
         worldX = x ;
         worldY = y;
 
-        if(!test){
-            this.color = color;
-            this.size = size;
 
-            // Initialize the bird's sprite based on the color
-            if (color.equalsIgnoreCase("red")) {
-                this.birdSprite = new Sprite(new Texture("angry.png"));
-            } else if (color.equalsIgnoreCase("blue")) {
-                this.birdSprite = new Sprite(new Texture("blue.png"));
-            } else if (color.equalsIgnoreCase("green")) {
-                this.birdSprite = new Sprite(new Texture("green.png"));
-            }
+        this.color = color;
+        this.size = size;
 
-            this.birdSprite.setSize(size, size);
-            this.birdSprite.setOrigin(size / 2.0f, size / 2.0f);
+        // Initialize the bird's sprite based on the color
+        if (color.equalsIgnoreCase("red")) {
+            this.birdSprite = new Sprite(new Texture("angry.png"));
+        } else if (color.equalsIgnoreCase("blue")) {
+            this.birdSprite = new Sprite(new Texture("blue.png"));
+        } else if (color.equalsIgnoreCase("green")) {
+            this.birdSprite = new Sprite(new Texture("green.png"));
         }
 
-        else{this.birdSprite = null;}
-
-
-
+        this.birdSprite.setSize(size, size);
+        this.birdSprite.setOrigin(size / 2.0f, size / 2.0f);
 
         // Body definition and positioning
         bd.type = BodyDef.BodyType.DynamicBody;
@@ -179,9 +172,7 @@ public class Bird {
     public boolean isLaunched() { return isLaunched; }
     public Vector2 getSlingshotAnchor() { return catapult; }
 
-
-
-
-
-
+    public boolean isDestroyed() {
+        return this.destroyed;
+    }
 }
