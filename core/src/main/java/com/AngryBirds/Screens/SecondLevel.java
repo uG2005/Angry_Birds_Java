@@ -1,5 +1,6 @@
 package com.AngryBirds.Screens;
 
+import com.AngryBirds.GameData;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -8,6 +9,7 @@ import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
@@ -28,7 +30,9 @@ import static com.badlogic.gdx.Gdx.input;
 
 public class SecondLevel implements Screen {
 
-
+    private float timeElapsed = 0f;
+    private int score;
+    private BitmapFont font;
     public static final short CATEGORY_BIRD = 0x0001;
     public static final short CATEGORY_CATAPULT = 0x0002;
     public static final short CATEGORY_PIG = 0x0004;
@@ -154,8 +158,8 @@ public class SecondLevel implements Screen {
         });
         background = new Sprite(new Texture("background.png"));
         catapult = new Sprite(new Texture("cat.png"));
-        red = new Bird("red", 100, 125, 45f , world,false);
-        blue = new Bird("blue", 175, 125, 45f , world,false);
+        red = new Bird("red", 100, 125, 45f , world);
+        blue = new Bird("blue", 175, 125, 45f , world);
         pig1 = new Pig("small",45,525,125,world,false);
         pig2 = new Pig("small",45, 525, 350,world,true);
         pause = new Sprite(new Texture("pause_button.png"));
@@ -256,7 +260,9 @@ public class SecondLevel implements Screen {
     }
     @Override
     public void show() {
-
+        score = GameData.getScore();
+        font = new BitmapFont();
+        font.getData().setScale(2);
         // No specific actions needed on show
         initializeTextures();
         initializeMusic();
@@ -285,6 +291,7 @@ public class SecondLevel implements Screen {
 
         drawcatapult();
         drawpause();
+        font.draw(batch, "Score: " + score, 50, graphics.getHeight() - 50);
 
         // Sync and draw Box2D bodies with their sprites
         world.getBodies(a1);
@@ -322,8 +329,6 @@ public class SecondLevel implements Screen {
         }
         a1.clear();
 
-
-
         batch.end();
 
 
@@ -345,9 +350,17 @@ public class SecondLevel implements Screen {
             InputHandler(red);
         }
         destroy();
+        timeElapsed += delta;
 
 
+        if (timeElapsed > 1f && pig1.isdestroyed() && pig2.isdestroyed()) {
+            ((Game) Gdx.app.getApplicationListener()).setScreen(new VictoryScreen(GameData.getCurrentLevel()));
+        } else if (blue.isLaunched() && red.isLaunched() && (!pig1.isdestroyed() || !pig2.isdestroyed())) {
+            ((Game) Gdx.app.getApplicationListener()).setScreen(new LossScreen(GameData.getCurrentLevel()));
+        }
     }
+
+
     private void clearScreen() {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
