@@ -38,11 +38,11 @@ public class GameData {
 
     public static void saveData() {
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(FILE_PATH))) {
-            writer.write("level = " + currentLevel);
+            writer.write("level=" + currentLevel);
             writer.newLine();
-            writer.write("score = " + score);
+            writer.write("score=" + score);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error saving game data: " + e.getMessage());
         }
     }
 
