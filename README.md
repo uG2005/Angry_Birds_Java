@@ -1,33 +1,53 @@
-# Angry Birds
+Angry Birds-Inspired Game
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+This is a 2D game inspired by the classic Angry Birds, developed using LibGDX. Players use slingshot mechanics to launch birds and destroy pigs by breaking blocks or directly hitting them. The game progresses through multiple levels, each with increasing difficulty. It features physics, scoring, and level progression systems.
 
-This project was generated with a template including simple application launchers and an empty `ApplicationListener` implementation.
+Features
+Slingshot Mechanics: Drag and release birds to launch them toward pigs.
+Destructible Blocks: Wooden and glass blocks interact with birds and pigs, breaking upon impact.
+Pigs and Victory Conditions: Destroy all pigs to win the level.
+Score System: Points are awarded for completing levels:
+Level 1: 500 points
+Level 2: 1000 points
+Level 3: 1500 points
 
-## Platforms
+Levels and Progression:
+Levels unlock sequentially.
+Replay any unlocked level.
+Locked levels remain inaccessible until the previous level is completed.
 
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
+Victory and Loss Screens:
+Victory Screen displays options to replay or progress.
+Loss Screen appears when all birds are used but pigs remain.
 
-## Gradle
+Sound Toggle: Easily toggle sound on/off through the settings menu.
 
-This project uses [Gradle](https://gradle.org/) to manage dependencies.
-The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
-Useful Gradle tasks and flags:
+Persistent Game State:
+Progress is saved automatically using a game_data.txt file.
+Resume from the last completed level when the game restarts.
 
-- `--continue`: when using this flag, errors will not stop the tasks from running.
-- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
-- `--offline`: when using this flag, cached dependency archives will be used.
-- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
-- `build`: builds sources and archives of every project.
-- `cleanEclipse`: removes Eclipse project data.
-- `cleanIdea`: removes IntelliJ project data.
-- `clean`: removes `build` folders, which store compiled classes and built archives.
-- `eclipse`: generates Eclipse project data.
-- `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
-- `test`: runs unit tests (if any).
+Game Controls
+Mouse:
+Drag the bird on the slingshot to aim.
+Release the mouse button to launch the bird.
+Click on the replay or next level buttons to navigate.
 
-Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
-For example, `core:clean` removes `build` folder only from the `core` project.
+UI Buttons:
+Replay: Restart the current level.
+Next Level: Proceed to the next unlocked level.
+Pause: Temporarily pause the game.
+
+How to Play:
+Launch the game and click "Play" on the main screen.
+Select an unlocked level.
+Drag and release birds from the slingshot to destroy pigs.
+Complete the level by destroying all pigs.
+Progress to the next level or replay completed levels.
+
+Future Enhancements
+Add more levels with varied block arrangements and difficulty.
+Include animations for bird launching and pig destruction.
+Enhance the UI with visual feedback for scoring.
+Add power-ups and different bird abilities.
+
+
