@@ -36,7 +36,7 @@ public class Bird {
 
 
     // Constructor
-    public Bird(String color, float x, float y, float size, World world) {
+    public Bird(String color, float x, float y, float size, World world, boolean test) {
 
         BodyDef bd = new BodyDef();
         FixtureDef f = new FixtureDef();
@@ -46,7 +46,8 @@ public class Bird {
         worldY = y;
 
 
-        this.color = color;
+        if(!test){
+              this.color = color;
         this.size = size;
 
         // Initialize the bird's sprite based on the color
@@ -60,6 +61,13 @@ public class Bird {
 
         this.birdSprite.setSize(size, size);
         this.birdSprite.setOrigin(size / 2.0f, size / 2.0f);
+        }
+        else if(test){
+            this.birdsprite = null;
+        }
+
+
+      
 
         // Body definition and positioning
         bd.type = BodyDef.BodyType.DynamicBody;
