@@ -58,12 +58,18 @@ public class LossScreen implements Screen {
         int currentLevel = GameData.getCurrentLevel();
         switch (currentLevel) {
             case 1:
+                GameData.setCurrentLevel(1);
+                GameData.setScore(0);
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new FirstLevel());
                 break;
             case 2:
+                GameData.setCurrentLevel(2);
+                GameData.setScore(500);
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new SecondLevel());
                 break;
             case 3:
+                GameData.setCurrentLevel(3);
+                GameData.setScore(1000);
                 ((Game) Gdx.app.getApplicationListener()).setScreen(new ThirdLevel());
                 break;
             default:
