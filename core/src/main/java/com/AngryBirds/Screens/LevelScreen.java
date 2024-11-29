@@ -75,12 +75,15 @@ public class LevelScreen implements Screen {
                         switch (level) {
                             case 1:
                                 ((Game) Gdx.app.getApplicationListener()).setScreen(new FirstLevel());
+                                GameData.setCurrentLevel(1);
                                 break;
                             case 2:
                                 ((Game) Gdx.app.getApplicationListener()).setScreen(new SecondLevel());
+                                GameData.setCurrentLevel(2);
                                 break;
                             case 3:
                                 ((Game) Gdx.app.getApplicationListener()).setScreen(new ThirdLevel());
+                                GameData.setCurrentLevel(3);
                                 break;
                         }
                     }
