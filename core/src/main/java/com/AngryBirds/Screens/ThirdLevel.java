@@ -381,6 +381,7 @@ public class ThirdLevel implements Screen {
 
 
         if (timeElapsed > 1f && pig1.isdestroyed() && pig2.isdestroyed()) {
+            GameData.setScore(1500);
             ((Game) Gdx.app.getApplicationListener()).setScreen(new VictoryScreen(GameData.getCurrentLevel()));
         } else if (blue.isLaunched() && green.isLaunched() && red.isLaunched() && red2.isLaunched() && (!pig1.isdestroyed() || !pig2.isdestroyed())) {
             ((Game) Gdx.app.getApplicationListener()).setScreen(new LossScreen(GameData.getCurrentLevel()));
