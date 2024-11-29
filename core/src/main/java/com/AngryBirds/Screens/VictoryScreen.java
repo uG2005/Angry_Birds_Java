@@ -132,12 +132,18 @@ public class VictoryScreen implements Screen {
         switch (currentLevel) {
             case 1:
                 game.setScreen(new FirstLevel());
+                GameData.setCurrentLevel(1);
+                GameData.setScore(0);
                 break;
             case 2:
                 game.setScreen(new SecondLevel());
+                GameData.setCurrentLevel(2);
+                GameData.setScore(500);
                 break;
             case 3:
                 game.setScreen(new ThirdLevel());
+                GameData.setCurrentLevel(3);
+                GameData.setScore(1000);
                 break;
             default:
                 System.out.println("Invalid level: " + currentLevel);
